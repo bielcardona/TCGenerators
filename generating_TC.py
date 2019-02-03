@@ -20,7 +20,7 @@ def split(net, u, hybrid=False):
     return utilde
 
 
-def is_correct_common(net, tis, yis):
+def is_feasible_common(net, tis, yis):
     for ti in tis:
         if not net.is_tree_node(ti):
             return False
@@ -51,23 +51,23 @@ def is_correct_common(net, tis, yis):
     return True
 
 
-def is_correct_T(net, tis, yis):
+def is_feasible_T(net, tis, yis):
     if len(tis) != 1:
         return False
-    return is_correct_common(net, tis, yis)
+    return is_feasible_common(net, tis, yis)
 
 
-def is_correct_H(net, tis, yis):
+def is_feasible_H(net, tis, yis):
     if not len(tis) in [1, 2]:
         return False
     for ti in tis:
         if ti in yis:
             return False
-    return is_correct_common(net, tis, yis)
+    return is_feasible_common(net, tis, yis)
 
 
 def augmentation_T(net, ell, tis, yis, pre_test=True):
-    if pre_test and not is_correct_T(net, tis, yis):
+    if pre_test and not is_feasible_T(net, tis, yis):
         return None
     t1 = list(tis)[0]
     netb = net.copy()
@@ -91,7 +91,7 @@ def augmentation_T(net, ell, tis, yis, pre_test=True):
 
 
 def augmentation_H(net, ell, tis, yis, pre_test=True):
-    if pre_test and not is_correct_H(net, tis, yis):
+    if pre_test and not is_feasible_H(net, tis, yis):
         return None
     if len(tis) == 1:
         t1 = list(tis)[0]
