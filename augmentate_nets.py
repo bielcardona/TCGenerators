@@ -14,12 +14,14 @@ def treat_line(line):
     return [net.eNewick() for net in new_nets]
 
 if __name__ == '__main__':
-    pool = multiprocessing.Pool(4)
+    pool = multiprocessing.Pool()
 
     with open(filein,'r') as f, open(fileout,'w') as g:
         lines = f.readlines()
-        outs = pool.map(treat_line,lines)
+        outs = pool.imap_unordered(treat_line,lines)
+        numnets = 0
         for out in outs:
             for l in out:
+                numnets += 1
                 g.write(l+"\n")
-        #print(outs)
+            print(f"Currently {numnets}")

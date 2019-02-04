@@ -191,7 +191,7 @@ def find_augmentations(net, ell, pre_test=True):
                     # print(tsset, yis)
                     maxr_h = r
                     nets.append(netb)
-    print(f"n={num_leaves}, t={num_tree_nodes}, h={num_hyb_nodes}, rt={maxr_t}, rh={maxr_h}, #nets={len(nets)}")
+    # print(f"n={num_leaves}, t={num_tree_nodes}, h={num_hyb_nodes}, rt={maxr_t}, rh={maxr_h}, #nets={len(nets)}")
     return nets
 
 
