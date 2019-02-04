@@ -164,7 +164,7 @@ def is_tree_child(net):
             return False
     return True
 
-# deprecated
+
 def find_augmentations(net, ell, pre_test=True):
     nets = []
     nodes = net.nodes()
@@ -195,7 +195,7 @@ def find_augmentations(net, ell, pre_test=True):
     return nets
 
 
-#deprecated
+
 def find_networks(taxa, pre_test=True):
     if len(taxa) == 1:
         return [phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')]
@@ -203,8 +203,9 @@ def find_networks(taxa, pre_test=True):
     nets_previous = find_networks(taxa[:-1])
     num_nets = len(nets_previous)
     for i in range(num_nets):
-        print(f"Taxa: {taxa}, {i} of {num_nets}")
+        # print(f"Taxa: {taxa}, {i} of {num_nets}")
         net = nets_previous[i]
         nets.extend(find_augmentations(net, taxa[-1], pre_test))
-        print(len(nets))
+        # print(len(nets))
     return nets
+
