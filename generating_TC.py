@@ -195,6 +195,26 @@ def find_augmentations(net, ell, pre_test=True):
     return nets
 
 
+def count_augmentations(net):
+    nodes = net.nodes()
+    tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
+    hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
+    num_hyb_nodes = len(hyb_nodes)
+    leaves = net.leaves()
+    num_leaves = len(leaves)
+    count = 0
+    for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
+        for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
+            if is_feasible_T(net, {wt}, vts):
+                count += 1
+    for r in range(num_leaves - num_hyb_nodes):
+        for ts in combinations_with_replacement(tree_nodes, 2):
+            tsset = set(ts)
+            for yis in permutations(tree_nodes - tsset, r):
+                if is_feasible_H(net, tsset, yis):
+                    count += 1
+    return count
+
 
 def find_networks(taxa, pre_test=True):
     if len(taxa) == 1:
