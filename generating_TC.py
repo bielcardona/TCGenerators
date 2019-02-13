@@ -5,9 +5,15 @@ import phylonetwork
 import networkx
 from itertools import product, permutations, combinations, combinations_with_replacement
 from networkx.drawing.nx_agraph import graphviz_layout
+import random
 
 
 def split(net, u, hybrid=False):
+    """
+    Splits the node u by introducing an elementary node. If hybrid is True, then
+    it is assumed that it will be a hybrid node and hence its name has '#' as first
+    character; otherwise it relies on the _generate_new_id() method.
+    """
     if hybrid:
         h = len([u for u in net.nodes() if net.is_hybrid_node(u)])
         utilde = "#" + str(h+1)
@@ -21,6 +27,10 @@ def split(net, u, hybrid=False):
 
 
 def is_feasible_common(net, tis, yis):
+    """
+    Tests if the common conditions for a feasible pair are satisfied
+    for the pair (tis,yis) inside net.
+    """
     for ti in tis:
         if not net.is_tree_node(ti):
             return False
@@ -46,18 +56,26 @@ def is_feasible_common(net, tis, yis):
         if yi == yj:
             return False
         if net.predecessors(yi) == net.predecessors(yj):
-            if not True in [ti == yk for ti in tis for yk in [yi, yj]]:
+            if True not in [ti == yk for ti in tis for yk in [yi, yj]]:
                 return False
     return True
 
 
 def is_feasible_T(net, tis, yis):
+    """
+    Tests if the conditions for a T-feasible pair are satisfied
+    for the pair (tis,yis) inside net.
+    """
     if len(tis) != 1:
         return False
     return is_feasible_common(net, tis, yis)
 
 
 def is_feasible_H(net, tis, yis):
+    """
+    Tests if the conditions for a H-feasible pair are satisfied
+    for the pair (tis,yis) inside net.
+    """
     if not len(tis) in [1, 2]:
         return False
     for ti in tis:
@@ -67,6 +85,12 @@ def is_feasible_H(net, tis, yis):
 
 
 def augmentation_T(net, ell, tis, yis, pre_test=True):
+    """
+    Finds the T-augmentation network of net using the pair (tis,yis) and adding
+    the taxon ell (if possible; otherwise returns None). If pre_test is True,
+    it test if (tis,yis) for a T-feasible pair; otherwise it first computes
+    the network and then checks if it is a BTC network.
+    """
     if pre_test and not is_feasible_T(net, tis, yis):
         return None
     t1 = list(tis)[0]
@@ -91,6 +115,12 @@ def augmentation_T(net, ell, tis, yis, pre_test=True):
 
 
 def augmentation_H(net, ell, tis, yis, pre_test=True):
+    """
+    Finds the H-augmentation network of net using the pair (tis,yis) and adding
+    the taxon ell (if possible; otherwise returns None). If pre_test is True,
+    it test if (tis,yis) for a H-feasible pair; otherwise it first computes
+    the network and then checks if it is a BTC network.
+    """
     if pre_test and not is_feasible_H(net, tis, yis):
         return None
     if len(tis) == 1:
@@ -104,7 +134,7 @@ def augmentation_H(net, ell, tis, yis, pre_test=True):
     rt = len(yis) + 2
     h = len([u for u in netb.nodes() if net.is_hybrid_node(u)])
     u0 = "#" + str(h+1)
-    us = [u0]+[netb._generate_new_id() for _ in range(1,rt)]
+    us = [u0]+[netb._generate_new_id() for _ in range(1, rt)]
     netb.add_path(us)
     netb._labels[us[-1]] = ell
     w1 = split(netb, t1)
@@ -123,33 +153,6 @@ def augmentation_H(net, ell, tis, yis, pre_test=True):
     return netb
 
 
-def BTC_networks(taxa):
-    if len(taxa) == 1:
-        yield phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')
-        return
-    ell = taxa[-1]
-    parent_generator = BTC_networks(taxa[:-1])
-    for net in parent_generator:
-        nodes = net.nodes()
-        tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
-        hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
-        num_hyb_nodes = len(hyb_nodes)
-        leaves = net.leaves()
-        num_leaves = len(leaves)
-        for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
-            for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
-                netb = augmentation_T(net, ell, {wt}, vts)
-                if netb:
-                    yield netb
-        for r in range(num_leaves - num_hyb_nodes):
-            for ts in combinations_with_replacement(tree_nodes, 2):
-                tsset = set(ts)
-                for yis in permutations(tree_nodes - tsset, r):
-                    netb = augmentation_H(net, ell, tsset, yis)
-                    if netb:
-                        yield netb
-
-
 def draw(net):
     pos = graphviz_layout(net, prog='dot')
     networkx.draw_networkx(net, pos, labels=net._labels)
@@ -165,67 +168,128 @@ def is_tree_child(net):
     return True
 
 
-def find_augmentations(net, ell, pre_test=True):
-    nets = []
-    nodes = net.nodes()
-    tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
-    num_tree_nodes = len(tree_nodes)
-    hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
-    num_hyb_nodes = len(hyb_nodes)
-    leaves = net.leaves()
-    num_leaves = len(leaves)
-    maxr_t = 0
-    maxr_h = 0
-    for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
-        for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
-            netb = augmentation_T(net, ell, {wt}, vts, pre_test)
-            if netb:
-                nets.append(netb)
-                maxr_t = r
-    for r in range(num_leaves - num_hyb_nodes):
-        for ts in combinations_with_replacement(tree_nodes, 2):
-            tsset = set(ts)
-            for yis in permutations(tree_nodes - tsset, r):
-                netb = augmentation_H(net, ell, tsset, yis, pre_test)
-                if netb:
-                    # print(tsset, yis)
-                    maxr_h = r
-                    nets.append(netb)
-    # print(f"n={num_leaves}, t={num_tree_nodes}, h={num_hyb_nodes}, rt={maxr_t}, rh={maxr_h}, #nets={len(nets)}")
-    return nets
-
-
-def count_augmentations(net):
+def feasible_pairs_generator(net):
     nodes = net.nodes()
     tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
     hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
     num_hyb_nodes = len(hyb_nodes)
     leaves = net.leaves()
     num_leaves = len(leaves)
-    count = 0
     for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
         for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
             if is_feasible_T(net, {wt}, vts):
-                count += 1
+                yield [augmentation_T, {wt}, vts]
     for r in range(num_leaves - num_hyb_nodes):
         for ts in combinations_with_replacement(tree_nodes, 2):
             tsset = set(ts)
             for yis in permutations(tree_nodes - tsset, r):
                 if is_feasible_H(net, tsset, yis):
-                    count += 1
-    return count
+                    yield [augmentation_H, tsset, yis]
 
 
-def find_networks(taxa, pre_test=True):
+def feasible_pairs(net):
+    return list(feasible_pairs_generator(net))
+
+
+def count_feasible_pairs(net):
+    return len(feasible_pairs(net))
+
+
+def BTC_offspring_generator(net, ell):
+    for feasible in feasible_pairs_generator(net):
+        f = feasible[0]
+        args = feasible[1:]
+        yield f(net, ell, *args)
+
+
+def BTC_networks_generator(taxa):
     if len(taxa) == 1:
-        return [phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')]
-    nets = []
-    nets_previous = find_networks(taxa[:-1])
-    num_nets = len(nets_previous)
-    for i in range(num_nets):
-        # print(f"Taxa: {taxa}, {i} of {num_nets}")
-        net = nets_previous[i]
-        nets.extend(find_augmentations(net, taxa[-1], pre_test))
-        # print(len(nets))
-    return nets
+        yield phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')
+        return
+    ell = taxa[-1]
+    parent_generator = BTC_networks_generator(taxa[:-1])
+    for net in parent_generator:
+        for augmented in BTC_offspring_generator(net, ell):
+            yield augmented
 
+
+# def BTC_networks(taxa):
+#     if len(taxa) == 1:
+#         yield phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')
+#         return
+#     ell = taxa[-1]
+#     parent_generator = BTC_networks(taxa[:-1])
+#     for net in parent_generator:
+#         nodes = net.nodes()
+#         tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
+#         hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
+#         num_hyb_nodes = len(hyb_nodes)
+#         leaves = net.leaves()
+#         num_leaves = len(leaves)
+#         for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
+#             for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
+#                 netb = augmentation_T(net, ell, {wt}, vts)
+#                 if netb:
+#                     yield netb
+#         for r in range(num_leaves - num_hyb_nodes):
+#             for ts in combinations_with_replacement(tree_nodes, 2):
+#                 tsset = set(ts)
+#                 for yis in permutations(tree_nodes - tsset, r):
+#                     netb = augmentation_H(net, ell, tsset, yis)
+#                     if netb:
+#                         yield netb
+
+
+# def find_augmentations(net, ell, pre_test=True):
+#     nets = []
+#     nodes = net.nodes()
+#     tree_nodes = set([u for u in nodes if net.is_tree_node(u)])
+#     num_tree_nodes = len(tree_nodes)
+#     hyb_nodes = set([u for u in nodes if net.is_hybrid_node(u)])
+#     num_hyb_nodes = len(hyb_nodes)
+#     leaves = net.leaves()
+#     num_leaves = len(leaves)
+#     maxr_t = 0
+#     maxr_h = 0
+#     for r in range(num_leaves - num_hyb_nodes + 1):  # num_tree_nodes + 1):
+#         for (wt, vts) in product(tree_nodes, permutations(tree_nodes, r)):
+#             netb = augmentation_T(net, ell, {wt}, vts, pre_test)
+#             if netb:
+#                 nets.append(netb)
+#                 maxr_t = r
+#     for r in range(num_leaves - num_hyb_nodes):
+#         for ts in combinations_with_replacement(tree_nodes, 2):
+#             tsset = set(ts)
+#             for yis in permutations(tree_nodes - tsset, r):
+#                 netb = augmentation_H(net, ell, tsset, yis, pre_test)
+#                 if netb:
+#                     # print(tsset, yis)
+#                     maxr_h = r
+#                     nets.append(netb)
+#     # print(f"n={num_leaves}, t={num_tree_nodes}, h={num_hyb_nodes}, rt={maxr_t}, rh={maxr_h}, #nets={len(nets)}")
+#     return nets
+
+
+# def find_networks(taxa, pre_test=True):
+#     if len(taxa) == 1:
+#         return [phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')]
+#     nets = []
+#     nets_previous = find_networks(taxa[:-1])
+#     num_nets = len(nets_previous)
+#     for i in range(num_nets):
+#         # print(f"Taxa: {taxa}, {i} of {num_nets}")
+#         net = nets_previous[i]
+#         nets.extend(find_augmentations(net, taxa[-1], pre_test))
+#         # print(len(nets))
+#     return nets
+
+
+def random_BTC_network(taxa):
+    if len(taxa) == 1:
+        return phylonetwork.PhyloNetwork(eNewick=taxa[0] + ';')
+    net_previous = random_BTC_network(taxa[:-1])
+    feasibles = feasible_pairs(net_previous)
+    chosen = random.choice(feasibles)
+    f = chosen[0]
+    args = chosen[1:]
+    return f(net_previous,taxa[-1], *args)
