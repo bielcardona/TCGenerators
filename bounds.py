@@ -85,4 +85,4 @@ def BTC(n):
 
 if __name__ == '__main__':
     for N in range(1, 11):
-        print(f"BTC({N}) <= {BTC(N)}")
+        print(f"|BTC({N})| <= {BTC(N)}")

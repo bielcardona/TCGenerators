@@ -1,16 +1,22 @@
 import sys
 import phylonetwork
-from generating_TC import count_augmentations
+from generating_TC import count_feasible_pairs
 import multiprocessing
 
-filein = sys.argv[1]
 
 def treat_line(line):
     line = line.strip()
     net = phylonetwork.PhyloNetwork(eNewick=line)
-    return count_augmentations(net)
+    return count_feasible_pairs(net)
+
 
 if __name__ == '__main__':
+    try:
+        filein = sys.argv[1]
+    except IndexError:
+        print("Usage: count_augmentation_nets infile")
+        exit()
+
     pool = multiprocessing.Pool()
 
     with open(filein,'r') as f:
@@ -22,4 +28,4 @@ if __name__ == '__main__':
         for out in outs:
             proclines += 1
             numnets += out
-            print(f"In {proclines} of {len(lines)}. Out {numnets} Ratio {numnets / proclines}")
+            print(f"Processed {proclines} of {len(lines)} lines. Network count: {numnets}. Ratio: {numnets / proclines:.2f}")
