@@ -14,7 +14,7 @@ if __name__ == '__main__':
     try:
         filein = sys.argv[1]
     except IndexError:
-        print("Usage: count_augmentation_nets infile")
+        print("Usage: python count_offspring.py infile")
         exit()
 
     pool = multiprocessing.Pool()

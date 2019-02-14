@@ -17,7 +17,7 @@ if __name__ == '__main__':
         fileout = sys.argv[2]
         newlabel = sys.argv[3]
     except IndexError:
-        print("Usage: augmentate_nets.py infile outfile taxon")
+        print("Usage: python compute_offspring.py infile outfile taxon")
         exit()
 
     pool = multiprocessing.Pool()
