@@ -1,7 +1,8 @@
 # Supplementary files for "Generation of Tree-Child phylogenetic networks"
 ## By G. Cardona and J.C. Pons
 
-If you have `pipenv` installed, the requirements can be installed by executing `pipenv install`. Once installed, the jupyter 
+If you have `pipenv` installed, the requirements can be installed by executing `pipenv install`. Notice however that `graphviz` must be installed previously.
+Once installed, the jupyter 
 notebooks can be run with `pipenv run jupyter-notebook`, and the scripts with `pipenv run python script.py`.
 
 The included files are:
