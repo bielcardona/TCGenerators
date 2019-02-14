@@ -34,10 +34,10 @@ if __name__ == '__main__':
             proclines += 1
             numnets += len(out)
             now = time.time()
-            print(f"Processed {proclines} of {len(lines)} lines. "+
-            f"Elapsed time: {now-start:.2f}s Expected time: {(now-start)*numlines/proclines:.2f}s " +
-            f"Network count: {numnets}. " +
-            f"Ratio: {numnets / proclines:.2f} Expected: {int(numnets*numlines/proclines)}")
+            print(f"Processed {proclines} of {len(lines)} lines. " +
+                  f"Elapsed time: {now - start:.2f}s Expected time: {(now - start) * numlines / proclines:.2f}s " +
+                  f"Network count: {numnets}. " +
+                  f"Ratio: {numnets / proclines:.2f} Expected: {int(numnets * numlines / proclines)}")
             for l in out:
-                g.write(l+"\n")
+                g.write(l + "\n")
         print(f"Total offpring: {numnets} networks")

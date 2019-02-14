@@ -21,10 +21,10 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool()
     start = time.time()
 
-    with open(filein,'r') as f:
+    with open(filein, 'r') as f:
         lines = f.readlines()
         numlines = len(lines)
-        outs = pool.imap_unordered(treat_line,lines)
+        outs = pool.imap_unordered(treat_line, lines)
         proclines = 0
 
         numnets = 0
@@ -32,8 +32,8 @@ if __name__ == '__main__':
             proclines += 1
             numnets += out
             now = time.time()
-            print(f"Processed {proclines} of {len(lines)} lines. "+
-            f"Elapsed time: {now-start:.2f}s Expected time: {(now-start)*numlines/proclines:.2f}s " +
-            f"Network count: {numnets}. " +
-            f"Ratio: {numnets / proclines:.2f} Expected: {int(numnets*numlines/proclines)}")
+            print(f"Processed {proclines} of {len(lines)} lines. " +
+                  f"Elapsed time: {now - start:.2f}s Expected time: {(now - start) * numlines / proclines:.2f}s " +
+                  f"Network count: {numnets}. " +
+                  f"Ratio: {numnets / proclines:.2f} Expected: {int(numnets * numlines / proclines)}")
         print(f"Total offpring: {numnets} networks")
