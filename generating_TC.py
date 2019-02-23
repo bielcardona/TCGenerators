@@ -4,7 +4,6 @@
 import phylonetwork
 import networkx
 from itertools import product, permutations, combinations, combinations_with_replacement
-from networkx.drawing.nx_agraph import graphviz_layout
 import random
 
 
@@ -151,14 +150,6 @@ def augmentation_H(net, ell, tis, yis, pre_test=True):
         else:
             return None
     return netb
-
-
-def draw(net):
-    """
-    Draws the network net using dot layout.
-    """
-    pos = graphviz_layout(net, prog='dot')
-    networkx.draw_networkx(net, pos, labels=net._labels)
 
 
 def is_tree_child(net):
