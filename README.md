@@ -14,3 +14,6 @@ The included files are:
 * `nets_n.txt`: Text file containing the eNewick strings of the BTC networks with `n` leaves (for `n`=1,2,3,4). These files can be used as input for the scripts above.
 * `demo.py`: Jupyter notebook that demonstrates the sequential and random generation of BTC networks with arbitrary number of leaves, as well as some computations using the module `generating_TC.py`.
 
+The jupyter notebook can also be run without installing anything:
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bielcardona/TCGenerators/master?filepath=demo.ipynb)
+
