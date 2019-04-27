@@ -3,7 +3,11 @@
 
 If you have `pipenv` installed, the requirements can be installed by executing `pipenv install`. Notice however that `graphviz` must be installed previously (only needed to run the Jupyter notebook).
 Once installed, the jupyter 
-notebooks can be run with `pipenv run jupyter-notebook`, and the scripts with `pipenv run python script.py`.
+notebooks can be run with `pipenv run jupyter-notebook`, and the scripts with `pipenv run python script.py`. 
+
+The jupyter notebook can also be run without installing anything:
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bielcardona/TCGenerators/master?filepath=demo.ipynb)
+
 
 The included files are:
 
@@ -13,7 +17,4 @@ The included files are:
 * `count_offspring.py`: Python script that computes the cardinality of the offspring of a set of networks. Usage: `count_offspring.py infile`. `infile` is a text file containing the eNewick strings of the networks whose offspring has to be counted.
 * `nets_n.txt`: Text file containing the eNewick strings of the BTC networks with `n` leaves (for `n`=1,2,3,4). These files can be used as input for the scripts above.
 * `demo.py`: Jupyter notebook that demonstrates the sequential and random generation of BTC networks with arbitrary number of leaves, as well as some computations using the module `generating_TC.py`.
-
-The jupyter notebook can also be run without installing anything:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bielcardona/TCGenerators/master?filepath=demo.ipynb)
 
