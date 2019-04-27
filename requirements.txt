@@ -1,1 +1,3 @@
-pipenv
+phylonetwork
+pygraphviz
+matplotlib==2.1.2
